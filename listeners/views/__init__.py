@@ -1,6 +1,7 @@
-from slack_bolt import App
-from .sample_view import sample_view_callback
+from .handle_task_submission import handle_submission
+from .handle_login_submission import handle_login_submission
 
 
-def register(app: App):
-    app.view("sample_view_id")(sample_view_callback)
+def register(app):
+    app.view("submit_task_model")(handle_submission)
+    app.view("submit_login_model")(handle_login_submission)

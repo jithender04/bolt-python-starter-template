@@ -1,33 +1,16 @@
 from logging import Logger
+from user_interface import update_home_tab, login_page
+from helpers.db import fetch_document, insert_document
 
+def is_logged_in(user):
+    result = fetch_document(user)
+    return True if result is not None else False
 
 def app_home_opened_callback(client, event, logger: Logger):
-    # ignore the app_home_opened event for anything but the Home tab
     if event["tab"] != "home":
-        return
-    try:
-        client.views_publish(
-            user_id=event["user"],
-            view={
-                "type": "home",
-                "blocks": [
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*Welcome home, <@" + event["user"] + "> :house:*",
-                        },
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "Learn how home tabs can be more useful and "
-                            + "interactive <https://api.slack.com/surfaces/tabs/using|*in the documentation*>.",
-                        },
-                    },
-                ],
-            },
-        )
-    except Exception as e:
-        logger.error(f"Error publishing home tab: {e}")
+        return  
+    elif is_logged_in(event["user"]):
+        update_home_tab(client, event["user"], logger)
+    else:
+        client.views_publish(user_id=event["user"], view=login_page(event["user"]))
+
